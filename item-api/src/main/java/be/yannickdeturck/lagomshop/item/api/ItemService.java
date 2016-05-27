@@ -25,6 +25,14 @@ public interface ItemService extends Service {
      */
     ServiceCall<AddItemRequest, AddItemResponse> createItem();
 
+    /**
+     * Other useful URLs:
+     *
+     * http://localhost:8000/services                                  - Lists the available services
+     * http://localhost:{SERVICE_PORT}/_status/circuit-breaker/current - Snapshot of current circuit breaker status
+     * http://localhost:{SERVICE_PORT}/_status/circuit-breaker/stream  - Stream of circuit breaker status
+     */
+
     @Override
     default Descriptor descriptor() {
         return Service.named("itemservice").with(
