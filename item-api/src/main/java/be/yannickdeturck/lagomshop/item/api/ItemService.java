@@ -10,7 +10,7 @@ import org.pcollections.PSequence;
 public interface ItemService extends Service {
 
     /**
-     * Example: curl http://localhost:9000/api/items/1
+     * Example: curl http://localhost:9000/api/items/5e59ff61-214c-461f-9e29-89de0cf88f90
      */
     ServiceCall<NotUsed, Item> getItem(String id);
 

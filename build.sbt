@@ -20,7 +20,7 @@ lazy val orderImpl = project("order-impl")
       lagomJavadslImmutables, lagomJavadslTestKit)
   )
   .settings(lagomForkedTestSettings: _*)
-  .dependsOn(orderApi)
+  .dependsOn(orderApi, itemApi)
 
 lazy val itemApi = project("item-api")
   .settings(

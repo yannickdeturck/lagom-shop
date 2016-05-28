@@ -5,27 +5,21 @@ import be.yannickdeturck.lagomshop.item.api.AddItemRequest;
 import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
-import com.datastax.driver.core.Row;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.NotFound;
-import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import org.pcollections.PSequence;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
-
 import org.pcollections.TreePVector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class ItemServiceImpl implements ItemService {
 
@@ -73,11 +67,13 @@ public class ItemServiceImpl implements ItemService {
         return (req) -> {
             return persistentEntities.refFor(ItemEntity.class, id)
                     .ask(GetItem.of()).thenApply(reply -> {
-                if (reply.getItem().isPresent())
-                    return reply.getItem().get();
-                else
-                    throw new NotFound(String.format("No item found for id %s", id));
-            });
+                        LOGGER.info(String.format("Looking up item %s", id));
+                        LOGGER.info(String.format("Item exists? %s", reply.getItem().isPresent()));
+                        if (reply.getItem().isPresent())
+                            return reply.getItem().get();
+                        else
+                            throw new NotFound(String.format("No item found for id %s", id));
+                    });
         };
     }
 
@@ -103,7 +99,6 @@ public class ItemServiceImpl implements ItemService {
 //            PubSubRef<Item> topic = topics.refFor(TopicId.of(Item.class, "topic"));
 //            topic.publish(request);
             LOGGER.info("createItem: {}.", request);
-            // For now, generate the UUID server side
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())
                     .ask(AddItem.of(request));

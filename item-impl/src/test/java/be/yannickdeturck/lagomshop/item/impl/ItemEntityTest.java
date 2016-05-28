@@ -19,7 +19,7 @@ import java.util.UUID;
 
 public class ItemEntityTest {
 
-    static ActorSystem system;
+    private static ActorSystem system;
 
     @BeforeClass
     public static void setup() {
