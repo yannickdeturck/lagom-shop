@@ -23,15 +23,6 @@ public class ItemEntity extends PersistentEntity<ItemCommand, ItemEvent, ItemSta
         );
 
         b.setCommandHandler(AddItem.class, (cmd, ctx) -> {
-// TODO don't think this is needed since command is validated during creation...
-//            if (StringUtils.isEmpty(cmd.getItem().getName())) {
-//                ctx.invalidCommand("Name must be defined");
-//                return ctx.done();
-//            }
-//            if (cmd.getItem().getPrice() == null) {
-//                ctx.invalidCommand("Price must be defined");
-//                return ctx.done();
-//            }
             if (state().getItem().isPresent()) {
                 ctx.invalidCommand(String.format("Item %s is already created", entityId()));
                 return ctx.done();

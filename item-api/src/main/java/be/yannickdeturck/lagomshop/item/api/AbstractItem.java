@@ -1,6 +1,7 @@
 package be.yannickdeturck.lagomshop.item.api;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.Preconditions;
 import com.lightbend.lagom.javadsl.immutable.ImmutableStyle;
 import org.immutables.value.Value;
 import java.math.BigDecimal;
@@ -19,4 +20,9 @@ public interface AbstractItem {
 
     @Value.Parameter
     BigDecimal getPrice();
+
+    @Value.Check
+    default void check() {
+        Preconditions.checkState(getPrice().signum() > 0, "Price must be a positive value");
+    }
 }

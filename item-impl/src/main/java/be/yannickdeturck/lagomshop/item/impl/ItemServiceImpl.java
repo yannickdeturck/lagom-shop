@@ -76,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
                 if (reply.getItem().isPresent())
                     return reply.getItem().get();
                 else
-                    throw new NotFound("item " + id + " not found");
+                    throw new NotFound(String.format("No item found for id %s", id));
             });
         };
     }
