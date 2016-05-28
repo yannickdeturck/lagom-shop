@@ -20,7 +20,8 @@ public interface ItemService extends Service {
     ServiceCall<NotUsed, PSequence<Item>> getAllItems();
 
     /**
-     * Example: curl -H "Content-Type: application/json" -X POST -d
+     * Example:
+     * curl -v -H "Content-Type: application/json" -X POST -d
      * '{"name": "Chair", "price": 10.50}' http://localhost:9000/api/items
      */
     ServiceCall<AddItemRequest, AddItemResponse> createItem();

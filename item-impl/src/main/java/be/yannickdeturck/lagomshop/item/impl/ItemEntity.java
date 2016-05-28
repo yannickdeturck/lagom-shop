@@ -32,13 +32,16 @@ public class ItemEntity extends PersistentEntity<ItemCommand, ItemEvent, ItemSta
 //                ctx.invalidCommand("Price must be defined");
 //                return ctx.done();
 //            }
-
-            Item item = Item.of(UUID.fromString(entityId()), cmd.getAddItemRequest().getName(),
-                    cmd.getAddItemRequest().getPrice());
-            final ItemAdded itemAdded = ItemAdded.builder().item(item).build();
-            LOGGER.info("itemAdded: {}", itemAdded);
-            return ctx.thenPersist(itemAdded, evt -> ctx.reply(AddItemResponse.of(itemAdded.getItem().getId())));
-
+            if (state().getItem().isPresent()) {
+                ctx.invalidCommand(String.format("Item %s is already created", entityId()));
+                return ctx.done();
+            } else {
+                Item item = Item.of(UUID.fromString(entityId()), cmd.getAddItemRequest().getName(),
+                        cmd.getAddItemRequest().getPrice());
+                final ItemAdded itemAdded = ItemAdded.builder().item(item).build();
+                LOGGER.info("itemAdded: {}", itemAdded);
+                return ctx.thenPersist(itemAdded, evt -> ctx.reply(AddItemResponse.of(itemAdded.getItem().getId())));
+            }
         });
 
         b.setEventHandler(ItemAdded.class,
@@ -46,10 +49,9 @@ public class ItemEntity extends PersistentEntity<ItemCommand, ItemEvent, ItemSta
                         .withTimestamp(LocalDateTime.now())
         );
 
-        // This could be used instead of querying Cassandra directly
-//        b.setReadOnlyCommandHandler(GetItem.class,
-//                (cmd, ctx) -> ctx.reply(GetItemReply.of(state().getItem()))
-//        );
+        b.setReadOnlyCommandHandler(GetItem.class,
+                (cmd, ctx) -> ctx.reply(GetItemReply.of(state().getItem()))
+        );
 
         return b.build();
     }

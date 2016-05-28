@@ -22,4 +22,20 @@ public interface ItemCommand extends Jsonable {
         @Value.Parameter
         AddItemRequest getAddItemRequest();
     }
+
+    @Value.Immutable(singleton = true)
+    @ImmutableStyle
+    @JsonDeserialize
+    public interface AbstractGetItem extends ItemCommand, CompressedJsonable, PersistentEntity.ReplyType<GetItemReply> {
+
+    }
+
+    @Value.Immutable
+    @ImmutableStyle
+    @JsonDeserialize
+    public interface AbstractGetItemReply extends Jsonable {
+
+        @Value.Parameter
+        Optional<Item> getItem();
+    }
 }

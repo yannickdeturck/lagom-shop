@@ -48,34 +48,36 @@ public class ItemServiceImpl implements ItemService {
         readSide.register(ItemEventProcessor.class);
     }
 
+    // getItem implemented by querying in Cassandra (results in a delay due to having it being persisted first...)
+//    @Override
+//    public ServiceCall<NotUsed, Item> getItem(String id) {
+//        return (req) -> {
+//            CompletionStage<Item> result =
+//                    db.selectOne("SELECT itemId, name, price FROM item WHERE itemId = ?", UUID.fromString(id))
+//                            .thenApply(row -> {
+//                                if (!row.isPresent()) {
+//                                    throw new NotFound("No item found for id " + id);
+//                                } else {
+//                                    Row r = row.get();
+//                                    return Item.of(r.getUUID("itemId"),
+//                                            r.getString("name"),
+//                                            r.getDecimal("price"));
+//                                }
+//                            });
+//            return result;
+//        };
+//    }
+
     @Override
     public ServiceCall<NotUsed, Item> getItem(String id) {
-// Alternatively...
-//        return (req) -> {
-//            return persistentEntities.refFor(ItemEntity.class, id)
-//                    .ask(GetItem.of()).thenApply(reply -> {
-//                if (reply.getItem().isPresent())
-//                    return reply.getItem().get();
-//                else
-//                    throw new NotFound("item " + id + " not found");
-//            });
-//        };
-
-
         return (req) -> {
-            CompletionStage<Item> result =
-                    db.selectOne("SELECT itemId, name, price FROM item WHERE itemId = ?", UUID.fromString(id))
-                            .thenApply(row -> {
-                                if (!row.isPresent()) {
-                                    throw new NotFound("No item found for id " + id);
-                                } else {
-                                    Row r = row.get();
-                                    return Item.of(r.getUUID("itemId"),
-                                            r.getString("name"),
-                                            r.getDecimal("price"));
-                                }
-                            });
-            return result;
+            return persistentEntities.refFor(ItemEntity.class, id)
+                    .ask(GetItem.of()).thenApply(reply -> {
+                if (reply.getItem().isPresent())
+                    return reply.getItem().get();
+                else
+                    throw new NotFound("item " + id + " not found");
+            });
         };
     }
 
