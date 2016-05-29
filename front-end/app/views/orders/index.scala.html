@@ -1,0 +1,24 @@
+@import models.Order
+
+@(orders: List[Order])
+@main("Orders", "orders") {
+    <h1>Orders</h1>
+    <table class="table table-condensed table-bordered .table-striped">
+        <thead>
+            <tr>
+                <th>ItemID</th>
+                <th>Amount</th>
+                <th>Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+        @orders.map { order =>
+            <tr>
+                <td>@order.itemId</td>
+                <td>@order.amount</td>
+                <td>@order.customer</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

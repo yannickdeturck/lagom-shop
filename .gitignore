@@ -2,11 +2,14 @@ target
 ideatarget
 .target
 bin
+/.idea
+/.idea_modules
 .cache
 .cache-main
 .cache-tests
 .classpath
 .project
+/RUNNING_PID
 .tmpBin
 .factorypath
 .settings

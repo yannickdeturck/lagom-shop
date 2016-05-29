@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
             CompletionStage<Item> response =
                     itemService.getItem(request.getItemId().toString()).invoke(NotUsed.getInstance());
             LOGGER.info("response -> " + response);
-            Item item = response.toCompletableFuture().getNow(null);
+            Item item = response.toCompletableFuture().join();
             if (item == null) {
                 // TODO custom BadRequest Exception?
                 throw new TransportException(TransportErrorCode.ProtocolError,
