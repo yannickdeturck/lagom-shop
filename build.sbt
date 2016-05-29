@@ -4,6 +4,7 @@ organization in ThisBuild := "be.yannickdeturck.lagomshop"
 scalaVersion in ThisBuild := "2.11.7"
 
 val immutables = "org.immutables" % "value" % "2.1.14"
+val mockito = "org.mockito" % "mockito-core" % "1.10.19"
 
 lazy val orderApi = project("order-api")
   .settings(
@@ -17,7 +18,7 @@ lazy val orderImpl = project("order-impl")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(lagomJavadslPersistence, immutables,
-      lagomJavadslImmutables, lagomJavadslTestKit)
+      lagomJavadslImmutables, lagomJavadslTestKit, mockito)
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(orderApi, itemApi)
