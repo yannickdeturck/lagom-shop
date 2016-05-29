@@ -7,6 +7,9 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.PSequence;
 
+/**
+ * @author Yannick De Turck
+ */
 public interface OrderService extends Service {
     /**
      * Example: curl http://localhost:9000/api/orders/5e59ff61-214c-461f-9e29-89de0cf88f90

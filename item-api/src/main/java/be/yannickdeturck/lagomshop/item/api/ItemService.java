@@ -7,6 +7,9 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.PSequence;
 
+/**
+ * @author Yannick De Turck
+ */
 public interface ItemService extends Service {
 
     /**

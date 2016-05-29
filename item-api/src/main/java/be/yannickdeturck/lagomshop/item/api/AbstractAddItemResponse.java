@@ -7,6 +7,9 @@ import org.immutables.value.Value;
 
 import java.util.UUID;
 
+/**
+ * @author Yannick De Turck
+ */
 @Value.Immutable
 @ImmutableStyle
 @JsonDeserialize

@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * @author Yannick De Turck
+ */
 public class ItemEntityTest {
 
     private static ActorSystem system;

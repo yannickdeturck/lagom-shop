@@ -19,6 +19,9 @@ import java.util.UUID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+/**
+ * @author Yannick De Turck
+ */
 public class ItemServiceTest {
     private static ServiceTest.TestServer server;
 

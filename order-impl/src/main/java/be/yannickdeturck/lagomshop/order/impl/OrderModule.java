@@ -4,6 +4,9 @@ import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 
+/**
+ * @author Yannick De Turck
+ */
 public class OrderModule extends AbstractModule implements ServiceGuiceSupport {
     @Override
     protected void configure() {

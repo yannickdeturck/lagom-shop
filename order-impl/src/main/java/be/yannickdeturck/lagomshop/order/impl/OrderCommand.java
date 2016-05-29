@@ -12,7 +12,6 @@ import java.util.Optional;
 /**
  * @author Yannick De Turck
  */
-
 public interface OrderCommand extends Jsonable {
 
     @Value.Immutable
