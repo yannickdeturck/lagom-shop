@@ -1,0 +1,14 @@
+@import b3.vertical.fieldConstructor
+@import models.Order
+
+@(form: Form[Order], items: List[Item])(implicit messages: Messages)
+@main("Create Order", "createOrder") {
+    <h1>Create order</h1>
+    @b3.form(routes.OrderController.createOrder()) {
+        @b3.select(form("itemId"), options = items.map(i => (i.id.get, i.name)), '_label -> "Select")
+        @b3.number(form("amount"), '_label -> "Amount")
+        @b3.text(form("customer"), '_label -> "Customer")
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-default" href="@controllers.routes.OrderController.index">Cancel</a>
+    }
+}

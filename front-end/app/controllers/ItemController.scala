@@ -4,15 +4,15 @@ import javax.inject._
 
 import models.Item
 import play.api.Logger
-import play.api.data._
 import play.api.data.Forms._
+import play.api.data._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsError, JsSuccess, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * @author Yannick De Turck
@@ -20,10 +20,11 @@ import scala.concurrent.duration._
 @Singleton
 class ItemController @Inject()(val messagesApi: MessagesApi)(implicit context: ExecutionContext, ws: WSClient)
   extends Controller with I18nSupport {
+
   val itemForm: Form[Item] = Form(
     mapping(
       "id" -> ignored(None: Option[String]),
-      "name" -> nonEmptyText(maxLength=28),
+      "name" -> nonEmptyText(maxLength = 28),
       "price" -> bigDecimal(8, 2).verifying("Price must be a positive value", price => price.signum > 0)
     )(Item.apply)(Item.unapply)
   )
@@ -50,14 +51,14 @@ class ItemController @Inject()(val messagesApi: MessagesApi)(implicit context: E
 
   def createItem = Action.async { implicit request =>
     itemForm.bindFromRequest.fold(
-      errors => Future.successful(BadRequest(views.html.items.create(errors))),{
+      errors => Future.successful(BadRequest(views.html.items.create(errors))), {
         item =>
           val createItem = ws.url("http://" + request.host + "/api/items")
             .withHeaders("Accept" -> "application/json")
             .withRequestTimeout(10000.millis)
           implicit val itemReads = Json.format[Item]
           val response = createItem.post(Json.toJson(item))
-          response.map{
+          response.map {
             r =>
               val id = (r.json \ "id").as[String]
               Redirect(routes.ItemController.editItem(id))

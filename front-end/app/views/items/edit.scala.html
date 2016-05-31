@@ -1,12 +1,12 @@
-@import models.Item
 @import b3.vertical.fieldConstructor
 @import customfields.amountText
+@import models.Item
 
 @(form: Form[Item])(implicit messages: Messages)
-@main("Create Item", "createItem") {
+@main("View Item", "viewItem") {
     <h1>View item</h1>
     @b3.form(routes.ItemController.createItem()) {
-        @b3.text(form("name"), '_label -> "Name" )
+        @b3.text(form("name"), '_label -> "Name")
         @amountText(form("price"), '_label -> "Price")
         <a class="btn btn-default" href="@controllers.routes.ItemController.index">Back</a>
     }

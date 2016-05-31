@@ -3,9 +3,12 @@
 @(orders: List[Order])
 @main("Orders", "orders") {
     <h1>Orders</h1>
+    <a class="btn btn-default" href="@controllers.routes.OrderController.newOrder"><i class="icon-plus-sign"></i>
+        Create order</a>
     <table class="table table-condensed table-bordered .table-striped">
         <thead>
             <tr>
+                <th style="width: 35px"></th>
                 <th>ItemID</th>
                 <th>Amount</th>
                 <th>Customer</th>
@@ -14,6 +17,11 @@
         <tbody>
         @orders.map { order =>
             <tr>
+                <td>
+                    <a type="button" class="btn btn-default btn-xs" href="@controllers.routes.OrderController.editOrder(order.id.get)">
+                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                    </a>
+                </td>
                 <td>@order.itemId</td>
                 <td>@order.amount</td>
                 <td>@order.customer</td>
