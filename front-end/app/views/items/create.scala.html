@@ -1,0 +1,14 @@
+@import models.Item
+@import b3.vertical.fieldConstructor
+@import customfields.amountText
+
+@(form: Form[Item])(implicit messages: Messages)
+@main("Create Item", "createItem") {
+    <h1>Create item</h1>
+    @b3.form(routes.ItemController.createItem()) {
+        @b3.text(form("name"), '_label -> "Name" )
+        @amountText(form("price"), '_label -> "Price")
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="btn btn-default" href="@controllers.routes.ItemController.index">Cancel</a>
+    }
+}
