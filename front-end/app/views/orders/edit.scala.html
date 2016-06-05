@@ -5,7 +5,7 @@
 @main("View Order", "viewOrder") {
     <h1>View order</h1>
     @b3.form(routes.OrderController.createOrder()) {
-        @b3.select(form("itemId"), options = items.map(i => (i.id.get, i.name)), '_label -> "Select")
+        @b3.select(form("itemId"), options = items.map(i => (i.id.get, i.name)), '_label -> "Item")
         @b3.number(form("amount"), '_label -> "Amount")
         @b3.text(form("customer"), '_label -> "Customer")
         <a class="btn btn-default" href="@controllers.routes.OrderController.index">Back</a>

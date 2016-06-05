@@ -52,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
         return (req) -> {
             return persistentEntities.refFor(OrderEntity.class, id)
                     .ask(GetOrder.of()).thenApply(reply -> {
+                        LOGGER.info(String.format("Looking up order %s", id));
                         if (reply.getOrder().isPresent())
                             return reply.getOrder().get();
                         else
@@ -63,6 +64,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ServiceCall<NotUsed, PSequence<Order>> getAllOrders() {
         return (req) -> {
+            LOGGER.info("Looking up all orders");
             CompletionStage<PSequence<Order>> result =
                     db.selectAll("SELECT orderId, itemId, amount, customer FROM item_order")
                             .thenApply(rows -> {
@@ -86,7 +88,6 @@ public class OrderServiceImpl implements OrderService {
 //            topic.publish(request);
             CompletionStage<Item> response =
                     itemService.getItem(request.getItemId().toString()).invoke(NotUsed.getInstance());
-            LOGGER.info("response -> " + response);
             Item item = response.toCompletableFuture().join();
             if (item == null) {
                 // TODO custom BadRequest Exception?
@@ -94,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
                         new ExceptionMessage("Bad Request", String.format("No item found for id %s",
                                 request.getItemId().toString())));
             }
-            LOGGER.info("createOrder: {}.", request);
+            LOGGER.info("Creating order {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(OrderEntity.class, uuid.toString())
                     .ask(CreateOrder.of(request));

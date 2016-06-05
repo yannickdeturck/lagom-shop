@@ -52,6 +52,7 @@ public class OrderEventProcessor extends CassandraReadSideProcessor<OrderEvent> 
     }
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
+        LOGGER.info("Creating Cassandra tables...");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS item_order ("
                         + "orderId uuid, itemId uuid, amount int, customer text, PRIMARY KEY (orderId))")
@@ -61,6 +62,7 @@ public class OrderEventProcessor extends CassandraReadSideProcessor<OrderEvent> 
     }
 
     private CompletionStage<Done> prepareWriteOrder(CassandraSession session) {
+        LOGGER.info("Inserting into read-side table item_order...");
         return session.prepare("INSERT INTO item_order (orderId, itemId, amount, customer) VALUES (?, ?, ?, ?)").thenApply(ps -> {
             setWriteOrder(ps);
             return Done.getInstance();
@@ -68,6 +70,7 @@ public class OrderEventProcessor extends CassandraReadSideProcessor<OrderEvent> 
     }
 
     private CompletionStage<Done> prepareWriteOffset(CassandraSession session) {
+        LOGGER.info("Inserting into read-side table order_offset...");
         return session.prepare("INSERT INTO item_order_offset (partition, offset) VALUES (1, ?)").thenApply(ps -> {
             setWriteOffset(ps);
             return Done.getInstance();
@@ -75,6 +78,7 @@ public class OrderEventProcessor extends CassandraReadSideProcessor<OrderEvent> 
     }
 
     private CompletionStage<Optional<UUID>> selectOffset(CassandraSession session) {
+        LOGGER.info("Looking up order_offset");
         return session.selectOne("SELECT offset FROM item_order_offset")
                 .thenApply(
                         optionalRow -> optionalRow.map(r -> r.getUUID("offset")));
@@ -85,6 +89,7 @@ public class OrderEventProcessor extends CassandraReadSideProcessor<OrderEvent> 
      */
     @Override
     public EventHandlers defineEventHandlers(EventHandlersBuilder builder) {
+        LOGGER.info("Setting up read-side event handlers...");
         builder.setEventHandler(OrderCreated.class, this::processOrderCreated);
         return builder.build();
     }

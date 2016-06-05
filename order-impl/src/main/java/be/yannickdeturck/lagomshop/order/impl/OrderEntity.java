@@ -17,11 +17,12 @@ public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, Orde
 
     @Override
     public Behavior initialBehavior(Optional<OrderState> snapshotState) {
-        LOGGER.info("snapshotState = {}", snapshotState);
+        LOGGER.info("Setting up initialBehaviour with snapshotState = {}", snapshotState);
         BehaviorBuilder b = newBehaviorBuilder(snapshotState.orElse(
                 OrderState.of(Optional.empty(), LocalDateTime.now()))
         );
 
+        // Register command handler
         b.setCommandHandler(CreateOrder.class, (cmd, ctx) -> {
             if (state().getOrder().isPresent()) {
                 ctx.invalidCommand(String.format("Order %s is already created", entityId()));
@@ -31,19 +32,26 @@ public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, Orde
                 Order order = Order.of(UUID.fromString(entityId()), orderRequest.getItemId(), orderRequest.getAmount(),
                         orderRequest.getCustomer());
                 final OrderCreated orderCreated = OrderCreated.builder().order(order).build();
-                LOGGER.info("OrderCreated: {}", orderCreated);
+                LOGGER.info("Processed CreateOrder command into OrderCreated event {}", orderCreated);
                 return ctx.thenPersist(orderCreated, evt ->
                         ctx.reply(CreateOrderResponse.of(orderCreated.getOrder().getId())));
             }
         });
 
-        b.setEventHandler(OrderCreated.class,
-                evt -> state().withOrder(evt.getOrder())
-                        .withTimestamp(LocalDateTime.now())
+        // Register event handler
+        b.setEventHandler(OrderCreated.class, evt -> {
+                    LOGGER.info("Processed OrderCreated event, updated order state");
+                    return state().withOrder(evt.getOrder())
+                            .withTimestamp(LocalDateTime.now());
+                }
         );
 
+        // Register read-only handler eg a handler that doesn't result in events being created
         b.setReadOnlyCommandHandler(GetOrder.class,
-                (cmd, ctx) -> ctx.reply(GetOrderReply.of(state().getOrder()))
+                (cmd, ctx) -> {
+                    LOGGER.info("Processed GetOrder command, returned order");
+                    ctx.reply(GetOrderReply.of(state().getOrder()));
+                }
         );
 
         return b.build();

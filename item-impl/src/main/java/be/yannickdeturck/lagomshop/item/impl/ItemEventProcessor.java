@@ -49,6 +49,7 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
     }
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
+        LOGGER.info("Creating Cassandra tables...");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS item ("
                         + "itemId uuid, name text, price decimal, PRIMARY KEY (itemId))")
@@ -58,6 +59,7 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
     }
 
     private CompletionStage<Done> prepareWriteItem(CassandraSession session) {
+        LOGGER.info("Inserting into read-side table item...");
         return session.prepare("INSERT INTO item (itemId, name, price) VALUES (?, ?, ?)").thenApply(ps -> {
             setWriteItem(ps);
             return Done.getInstance();
@@ -65,6 +67,7 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
     }
 
     private CompletionStage<Done> prepareWriteOffset(CassandraSession session) {
+        LOGGER.info("Inserting into read-side table item_offset...");
         return session.prepare("INSERT INTO item_offset (partition, offset) VALUES (1, ?)").thenApply(ps -> {
             setWriteOffset(ps);
             return Done.getInstance();
@@ -72,6 +75,7 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
     }
 
     private CompletionStage<Optional<UUID>> selectOffset(CassandraSession session) {
+        LOGGER.info("Looking up item_offset");
         return session.selectOne("SELECT offset FROM item_offset")
                 .thenApply(
                         optionalRow -> optionalRow.map(r -> r.getUUID("offset")));
@@ -82,6 +86,7 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
      */
     @Override
     public EventHandlers defineEventHandlers(EventHandlersBuilder builder) {
+        LOGGER.info("Setting up read-side event handlers...");
         builder.setEventHandler(ItemAdded.class, this::processItemAdded);
         return builder.build();
     }

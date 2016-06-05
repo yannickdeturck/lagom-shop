@@ -54,7 +54,6 @@ class OrderController @Inject()(val messagesApi: MessagesApi)(implicit context: 
     orderForm.bindFromRequest.fold(
       errors => Future.successful(BadRequest(views.html.orders.create(errors, getItems(request)))), {
         order =>
-          Logger.info("derin")
           val createOrder = ws.url("http://" + request.host + "/api/orders")
             .withHeaders("Accept" -> "application/json")
             .withRequestTimeout(10000.millis)

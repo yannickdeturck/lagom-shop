@@ -42,33 +42,12 @@ public class ItemServiceImpl implements ItemService {
         readSide.register(ItemEventProcessor.class);
     }
 
-    // getItem implemented by querying in Cassandra (results in a delay due to having it being persisted first...)
-//    @Override
-//    public ServiceCall<NotUsed, Item> getItem(String id) {
-//        return (req) -> {
-//            CompletionStage<Item> result =
-//                    db.selectOne("SELECT itemId, name, price FROM item WHERE itemId = ?", UUID.fromString(id))
-//                            .thenApply(row -> {
-//                                if (!row.isPresent()) {
-//                                    throw new NotFound("No item found for id " + id);
-//                                } else {
-//                                    Row r = row.get();
-//                                    return Item.of(r.getUUID("itemId"),
-//                                            r.getString("name"),
-//                                            r.getDecimal("price"));
-//                                }
-//                            });
-//            return result;
-//        };
-//    }
-
     @Override
     public ServiceCall<NotUsed, Item> getItem(String id) {
         return (req) -> {
             return persistentEntities.refFor(ItemEntity.class, id)
                     .ask(GetItem.of()).thenApply(reply -> {
                         LOGGER.info(String.format("Looking up item %s", id));
-                        LOGGER.info(String.format("Item exists? %s", reply.getItem().isPresent()));
                         if (reply.getItem().isPresent())
                             return reply.getItem().get();
                         else
@@ -80,6 +59,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ServiceCall<NotUsed, PSequence<Item>> getAllItems() {
         return (req) -> {
+            LOGGER.info("Looking up all items");
             CompletionStage<PSequence<Item>> result = db.selectAll("SELECT itemId, name, price FROM item")
                     .thenApply(rows -> {
                         List<Item> items = rows.stream().map(row -> Item.of(row.getUUID("itemId"),
@@ -98,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
             // Publish received entity into topic named "Topic"
 //            PubSubRef<Item> topic = topics.refFor(TopicId.of(Item.class, "topic"));
 //            topic.publish(request);
-            LOGGER.info("createItem: {}.", request);
+            LOGGER.info("Creating item: {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())
                     .ask(AddItem.of(request));

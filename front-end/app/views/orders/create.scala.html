@@ -5,7 +5,7 @@
 @main("Create Order", "createOrder") {
     <h1>Create order</h1>
     @b3.form(routes.OrderController.createOrder()) {
-        @b3.select(form("itemId"), options = items.map(i => (i.id.get, i.name)), '_label -> "Select")
+        @b3.select(form("itemId"), options = items.map(i => (i.id.get, i.name)), '_label -> "Item")
         @b3.number(form("amount"), '_label -> "Amount")
         @b3.text(form("customer"), '_label -> "Customer")
         <button type="submit" class="btn btn-primary">Submit</button>
