@@ -1,12 +1,11 @@
 package be.yannickdeturck.lagomshop.item.impl;
 
-import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
+import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,23 +22,23 @@ public class ItemEntity extends PersistentEntity<ItemCommand, ItemEvent, ItemSta
         );
 
         // Register command handler
-        b.setCommandHandler(AddItem.class, (cmd, ctx) -> {
+        b.setCommandHandler(CreateItem.class, (cmd, ctx) -> {
             if (state().getItem().isPresent()) {
                 ctx.invalidCommand(String.format("Item %s is already created", entityId()));
                 return ctx.done();
             } else {
-                Item item = Item.of(UUID.fromString(entityId()), cmd.getAddItemRequest().getName(),
-                        cmd.getAddItemRequest().getPrice());
-                final ItemAdded itemAdded = ItemAdded.builder().item(item).build();
-                LOGGER.info("Processed AddItem command into ItemAdded event {}", itemAdded);
-                return ctx.thenPersist(itemAdded, evt ->
-                        ctx.reply(AddItemResponse.of(itemAdded.getItem().getId())));
+                Item item = Item.of(UUID.fromString(entityId()), cmd.getCreateItemRequest().getName(),
+                        cmd.getCreateItemRequest().getPrice());
+                final ItemCreated itemCreated = ItemCreated.builder().item(item).build();
+                LOGGER.info("Processed CreateItem command into ItemCreated event {}", itemCreated);
+                return ctx.thenPersist(itemCreated, evt ->
+                        ctx.reply(CreateItemResponse.of(itemCreated.getItem().getId())));
             }
         });
 
         // Register event handler
-        b.setEventHandler(ItemAdded.class, evt -> {
-                    LOGGER.info("Processed ItemAdded event, updated item state");
+        b.setEventHandler(ItemCreated.class, evt -> {
+                    LOGGER.info("Processed ItemCreated event, updated item state");
                     return state().withItem(evt.getItem())
                             .withTimestamp(LocalDateTime.now());
                 }

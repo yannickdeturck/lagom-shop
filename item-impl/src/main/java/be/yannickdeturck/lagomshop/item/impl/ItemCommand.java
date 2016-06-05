@@ -1,7 +1,7 @@
 package be.yannickdeturck.lagomshop.item.impl;
 
-import be.yannickdeturck.lagomshop.item.api.AddItemRequest;
-import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
+import be.yannickdeturck.lagomshop.item.api.CreateItemRequest;
+import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.lightbend.lagom.javadsl.immutable.ImmutableStyle;
@@ -17,10 +17,10 @@ public interface ItemCommand extends Jsonable {
     @Value.Immutable
     @ImmutableStyle
     @JsonDeserialize
-    public interface AbstractAddItem extends ItemCommand, CompressedJsonable, PersistentEntity.ReplyType<AddItemResponse> {
+    public interface AbstractCreateItem extends ItemCommand, CompressedJsonable, PersistentEntity.ReplyType<CreateItemResponse> {
 
         @Value.Parameter
-        AddItemRequest getAddItemRequest();
+        CreateItemRequest getCreateItemRequest();
     }
 
     @Value.Immutable(singleton = true)

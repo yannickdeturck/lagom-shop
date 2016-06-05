@@ -1,8 +1,8 @@
 package be.yannickdeturck.lagomshop.item.impl;
 
 import akka.NotUsed;
-import be.yannickdeturck.lagomshop.item.api.AddItemRequest;
-import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
+import be.yannickdeturck.lagomshop.item.api.CreateItemRequest;
+import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.testkit.ServiceTest;
@@ -39,16 +39,17 @@ public class ItemServiceTest {
     }
 
     @Test
-    public void addItem_Should_GenerateId() throws Exception {
+    public void createItem_Should_GenerateId() throws Exception {
         // given
         ItemService service = server.client(ItemService.class);
-        AddItemRequest addItemRequest = AddItemRequest.builder()
+        CreateItemRequest createItemRequest = CreateItemRequest.builder()
                 .name("Chair")
                 .price(new BigDecimal(10.00))
                 .build();
 
         // when
-        AddItemResponse response = service.createItem().invoke(addItemRequest).toCompletableFuture().get(3, SECONDS);
+        CreateItemResponse response = service.createItem().invoke(createItemRequest)
+                .toCompletableFuture().get(3, SECONDS);
 
         // then
         Assert.assertNotNull(response.getId());
@@ -58,21 +59,21 @@ public class ItemServiceTest {
     public void getItem_Should_ReturnCreatedItem() throws Exception {
         // given
         ItemService service = server.client(ItemService.class);
-        AddItemRequest addItemRequest = AddItemRequest.builder()
+        CreateItemRequest createItemRequest = CreateItemRequest.builder()
                 .name("Chair")
                 .price(new BigDecimal(10.00))
                 .build();
-        AddItemResponse addItemResponse = service.createItem().invoke(addItemRequest).toCompletableFuture().get(3, SECONDS);
+        CreateItemResponse createItemResponse = service.createItem().invoke(createItemRequest).toCompletableFuture().get(3, SECONDS);
 
         // when
         // TODO disable circuit breaker to reduce time needed?
         // TODO should a 'get' service actually have a circuit breaker?
         ServiceTest.eventually(FiniteDuration.create(10, SECONDS), FiniteDuration.create(1000, MILLISECONDS), () -> {
-            Item response = service.getItem(addItemResponse.getId().toString())
+            Item response = service.getItem(createItemResponse.getId().toString())
                     .invoke(NotUsed.getInstance()).toCompletableFuture().get(3, SECONDS);
 
             // then
-            Assert.assertEquals(addItemResponse.getId(), response.getId());
+            Assert.assertEquals(createItemResponse.getId(), response.getId());
             Assert.assertEquals("Chair", response.getName());
             Assert.assertEquals(new BigDecimal(10.00), response.getPrice());
         });
@@ -92,8 +93,8 @@ public class ItemServiceTest {
         } catch (Exception e) {
             // then
             Assert.assertEquals(String.format("com.lightbend.lagom.javadsl.api.transport.NotFound: " +
-                    "No item found for id %s " +
-                    "(TransportErrorCode{http=404, webSocket=1008, description='Policy Violation'})",
+                            "No item found for id %s " +
+                            "(TransportErrorCode{http=404, webSocket=1008, description='Policy Violation'})",
                     randomId.toString()), e.getMessage());
         }
     }
@@ -102,16 +103,16 @@ public class ItemServiceTest {
     public void getAllItems_Should_ReturnCreatedItems() throws Exception {
         // given
         ItemService service = server.client(ItemService.class);
-        AddItemRequest addItemRequest = AddItemRequest.builder()
+        CreateItemRequest createItemRequest = CreateItemRequest.builder()
                 .name("Chair")
                 .price(new BigDecimal(10.00))
                 .build();
-        AddItemResponse addItemResponse = service.createItem().invoke(addItemRequest).toCompletableFuture().get(3, SECONDS);
-        AddItemRequest addItemRequest2 = AddItemRequest.builder()
+        CreateItemResponse createItemResponse = service.createItem().invoke(createItemRequest).toCompletableFuture().get(3, SECONDS);
+        CreateItemRequest createItemRequest2 = CreateItemRequest.builder()
                 .name("Table")
                 .price(new BigDecimal(24.99))
                 .build();
-        AddItemResponse addItemResponse2 = service.createItem().invoke(addItemRequest2).toCompletableFuture().get(3, SECONDS);
+        CreateItemResponse createItemResponse2 = service.createItem().invoke(createItemRequest2).toCompletableFuture().get(3, SECONDS);
 
         // when
         ServiceTest.eventually(FiniteDuration.create(10, SECONDS), FiniteDuration.create(1000, MILLISECONDS), () -> {
@@ -121,22 +122,22 @@ public class ItemServiceTest {
             // then
             // TODO find a way to truncate Cassandra tables and check on size
 //            Assert.assertEquals(2, response.size());
-            Assert.assertTrue(String.format("Doesn't contain item %s", addItemResponse.getId()),
-                    response.stream().anyMatch(i -> addItemResponse.getId().equals(i.getId())));
-            Assert.assertTrue(String.format("Doesn't contain item %s", addItemResponse2.getId()),
-                    response.stream().anyMatch(i -> addItemResponse2.getId().equals(i.getId())));
+            Assert.assertTrue(String.format("Doesn't contain item %s", createItemResponse.getId()),
+                    response.stream().anyMatch(i -> createItemResponse.getId().equals(i.getId())));
+            Assert.assertTrue(String.format("Doesn't contain item %s", createItemResponse2.getId()),
+                    response.stream().anyMatch(i -> createItemResponse2.getId().equals(i.getId())));
             response.stream()
-                    .filter(i -> i.getId().equals(addItemResponse.getId()))
+                    .filter(i -> i.getId().equals(createItemResponse.getId()))
                     .forEach(i -> {
-                                Assert.assertEquals(addItemResponse.getId(), i.getId());
+                                Assert.assertEquals(createItemResponse.getId(), i.getId());
                                 Assert.assertEquals("Chair", i.getName());
                                 Assert.assertEquals(new BigDecimal(10.00), i.getPrice());
                             }
                     );
             response.stream()
-                    .filter(i -> i.getId().equals(addItemResponse2.getId()))
+                    .filter(i -> i.getId().equals(createItemResponse2.getId()))
                     .forEach(i -> {
-                                Assert.assertEquals(addItemResponse2.getId(), i.getId());
+                                Assert.assertEquals(createItemResponse2.getId(), i.getId());
                                 Assert.assertEquals("Table", i.getName());
                                 Assert.assertEquals(new BigDecimal(24.99), i.getPrice());
                             }

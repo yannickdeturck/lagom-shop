@@ -1,8 +1,8 @@
 package be.yannickdeturck.lagomshop.item.impl;
 
 import akka.NotUsed;
-import be.yannickdeturck.lagomshop.item.api.AddItemRequest;
-import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
+import be.yannickdeturck.lagomshop.item.api.CreateItemRequest;
+import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -72,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ServiceCall<AddItemRequest, AddItemResponse> createItem() {
+    public ServiceCall<CreateItemRequest, CreateItemResponse> createItem() {
         return request -> {
             // also add publish stuff here
             // Publish received entity into topic named "Topic"
@@ -81,7 +81,7 @@ public class ItemServiceImpl implements ItemService {
             LOGGER.info("Creating item: {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())
-                    .ask(AddItem.of(request));
+                    .ask(CreateItem.of(request));
         };
     }
 }

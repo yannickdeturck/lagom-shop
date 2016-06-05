@@ -82,19 +82,19 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
     }
 
     /**
-     * Bind the read side persistence to the ItemAdded event.
+     * Bind the read side persistence to the ItemCreated event.
      */
     @Override
     public EventHandlers defineEventHandlers(EventHandlersBuilder builder) {
         LOGGER.info("Setting up read-side event handlers...");
-        builder.setEventHandler(ItemAdded.class, this::processItemAdded);
+        builder.setEventHandler(ItemCreated.class, this::processItemCreated);
         return builder.build();
     }
 
     /**
      * Write a persistent event into the read-side optimized database.
      */
-    private CompletionStage<List<BoundStatement>> processItemAdded(ItemAdded event, UUID offset) {
+    private CompletionStage<List<BoundStatement>> processItemCreated(ItemCreated event, UUID offset) {
         BoundStatement bindWriteItem = writeItem.bind();
         bindWriteItem.setUUID("itemId", event.getItem().getId());
         bindWriteItem.setString("name", event.getItem().getName());

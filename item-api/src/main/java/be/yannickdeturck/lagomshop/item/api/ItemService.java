@@ -27,7 +27,7 @@ public interface ItemService extends Service {
      * curl -v -H "Content-Type: application/json" -X POST -d
      * '{"name": "Chair", "price": 10.50}' http://localhost:9000/api/items
      */
-    ServiceCall<AddItemRequest, AddItemResponse> createItem();
+    ServiceCall<CreateItemRequest, CreateItemResponse> createItem();
 
     /**
      * Other useful URLs:

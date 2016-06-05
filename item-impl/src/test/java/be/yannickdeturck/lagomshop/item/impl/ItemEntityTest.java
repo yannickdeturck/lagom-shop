@@ -2,8 +2,8 @@ package be.yannickdeturck.lagomshop.item.impl;
 
 import akka.actor.ActorSystem;
 import akka.testkit.JavaTestKit;
-import be.yannickdeturck.lagomshop.item.api.AddItemRequest;
-import be.yannickdeturck.lagomshop.item.api.AddItemResponse;
+import be.yannickdeturck.lagomshop.item.api.CreateItemRequest;
+import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import com.lightbend.lagom.javadsl.testkit.PersistentEntityTestDriver;
@@ -36,7 +36,7 @@ public class ItemEntityTest {
     }
 
     @Test
-    public void addItem_Should_CreateItemAddedEvent() {
+    public void createItem_Should_CreateItemCreatedEvent() {
         // given
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
@@ -44,16 +44,16 @@ public class ItemEntityTest {
 
         // when
         PersistentEntityTestDriver.Outcome<ItemEvent, ItemState> outcome = driver.run(
-                AddItem.of(AddItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
+                CreateItem.of(CreateItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
 
         // then
-        Assert.assertTrue(outcome.getReplies().get(0) instanceof AddItemResponse);
-        Assert.assertEquals(AddItemResponse.of(id), outcome.getReplies().get(0));
-        ItemAdded itemAdded = ((ItemAdded) outcome.events().get(0));
-        Assert.assertEquals(id, itemAdded.getItem().getId());
-        Assert.assertEquals("Chair", itemAdded.getItem().getName());
-        Assert.assertEquals(BigDecimal.valueOf(14.99), itemAdded.getItem().getPrice());
-        Assert.assertNotNull(((ItemAdded) outcome.events().get(0)).getTimestamp());
+        Assert.assertTrue(outcome.getReplies().get(0) instanceof CreateItemResponse);
+        Assert.assertEquals(CreateItemResponse.of(id), outcome.getReplies().get(0));
+        ItemCreated itemCreated = ((ItemCreated) outcome.events().get(0));
+        Assert.assertEquals(id, itemCreated.getItem().getId());
+        Assert.assertEquals("Chair", itemCreated.getItem().getName());
+        Assert.assertEquals(BigDecimal.valueOf(14.99), itemCreated.getItem().getPrice());
+        Assert.assertNotNull(((ItemCreated) outcome.events().get(0)).getTimestamp());
         Assert.assertEquals(Collections.emptyList(), driver.getAllIssues());
     }
 
@@ -63,11 +63,11 @@ public class ItemEntityTest {
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
                 system, new ItemEntity(), id.toString());
-        driver.run(AddItem.of(AddItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
+        driver.run(CreateItem.of(CreateItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
 
         // when
         PersistentEntityTestDriver.Outcome<ItemEvent, ItemState> outcome = driver.run(
-                AddItem.of(AddItemRequest.of("Chair2", BigDecimal.valueOf(14.99))));
+                CreateItem.of(CreateItemRequest.of("Chair2", BigDecimal.valueOf(14.99))));
 
         // then
         Assert.assertEquals(PersistentEntity.InvalidCommandException.class, outcome.getReplies().get(0).getClass());
@@ -76,7 +76,7 @@ public class ItemEntityTest {
     }
 
     @Test
-    public void addItemWithoutName_Should_ThrowNullPointerException() {
+    public void createItemWithoutName_Should_ThrowNullPointerException() {
         // given
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
@@ -84,7 +84,7 @@ public class ItemEntityTest {
 
         // when
         try {
-            driver.run(AddItem.of(AddItemRequest.of(null, BigDecimal.valueOf(14.99))));
+            driver.run(CreateItem.of(CreateItemRequest.of(null, BigDecimal.valueOf(14.99))));
             Assert.fail();
         } catch (NullPointerException e) {
             // then
@@ -94,7 +94,7 @@ public class ItemEntityTest {
     }
 
     @Test
-    public void addItemWithoutPrice_Should_ThrowNullPointerException() {
+    public void createItemWithoutPrice_Should_ThrowNullPointerException() {
         // given
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
@@ -102,7 +102,7 @@ public class ItemEntityTest {
 
         // when
         try {
-            driver.run(AddItem.of(AddItemRequest.of("Chair", null)));
+            driver.run(CreateItem.of(CreateItemRequest.of("Chair", null)));
             Assert.fail();
         } catch (NullPointerException e) {
             // then
@@ -112,7 +112,7 @@ public class ItemEntityTest {
     }
 
     @Test
-    public void addItemWithNegativePrice_Should_ThrowSomeException() {
+    public void createItemWithNegativePrice_Should_ThrowSomeException() {
         // given
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
@@ -120,7 +120,7 @@ public class ItemEntityTest {
 
         // when
         try {
-            driver.run(AddItem.of(AddItemRequest.of("Chair", BigDecimal.valueOf(-14.99))));
+            driver.run(CreateItem.of(CreateItemRequest.of("Chair", BigDecimal.valueOf(-14.99))));
             Assert.fail();
         } catch (IllegalStateException e) {
             // then
@@ -135,7 +135,7 @@ public class ItemEntityTest {
         UUID id = UUID.randomUUID();
         PersistentEntityTestDriver<ItemCommand, ItemEvent, ItemState> driver = new PersistentEntityTestDriver<>(
                 system, new ItemEntity(), id.toString());
-        driver.run(AddItem.of(AddItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
+        driver.run(CreateItem.of(CreateItemRequest.of("Chair", BigDecimal.valueOf(14.99))));
         Item chair = Item.of(id, "Chair", BigDecimal.valueOf(14.99));
 
         // when

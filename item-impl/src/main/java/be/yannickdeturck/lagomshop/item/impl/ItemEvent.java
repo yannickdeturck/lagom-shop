@@ -15,7 +15,7 @@ public interface ItemEvent extends Jsonable, AggregateEvent<ItemEvent> {
     @Value.Immutable
     @ImmutableStyle
     @JsonDeserialize
-    interface AbstractItemAdded extends ItemEvent {
+    interface AbstractItemCreated extends ItemEvent {
         @Override
         default AggregateEventTag<ItemEvent> aggregateTag() {
             return ItemEventTag.INSTANCE;
