@@ -24,7 +24,6 @@ public class ItemEventProcessor extends CassandraReadSideProcessor<ItemEvent> {
         return ItemEventTag.INSTANCE;
     }
 
-
     private PreparedStatement writeItem = null; // initialized in prepare
     private PreparedStatement writeOffset = null; // initialized in prepare
 
