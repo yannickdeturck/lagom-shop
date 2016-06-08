@@ -1,6 +1,7 @@
 package be.yannickdeturck.lagomshop.order.impl;
 
 import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -26,13 +27,19 @@ public interface OrderService extends Service {
      * curl -v -H "Content-Type: application/json" -X POST -d
      * '{"name": "Chair", "price": 10.50}' http://localhost:9000/api/orders
      */
-     ServiceCall<CreateOrderRequest, CreateOrderResponse> createOrder();
+    ServiceCall<CreateOrderRequest, CreateOrderResponse> createOrder();
+
+    /**
+     *
+     */
+    ServiceCall<NotUsed, Source<CreateOrderRequest, ?>> getLiveOrders();
 
     @Override
     default Descriptor descriptor() {
         return Service.named("orderservice").with(
-                Service.restCall(Method.GET,  "/api/orders/:id", this::getOrder),
-                Service.restCall(Method.GET,  "/api/orders", this::getAllOrders),
+                Service.pathCall("/api/orders/live", this::getLiveOrders),
+                Service.restCall(Method.GET, "/api/orders/:id", this::getOrder),
+                Service.restCall(Method.GET, "/api/orders", this::getAllOrders),
                 Service.restCall(Method.POST, "/api/orders", this::createOrder)
         ).withAutoAcl(true);
     }

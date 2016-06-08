@@ -20,7 +20,7 @@ lazy val orderImpl = project("order-impl")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(lagomJavadslPersistence, immutables,
-      lagomJavadslImmutables, lagomJavadslTestKit, mockito)
+      lagomJavadslImmutables, lagomJavadslTestKit, lagomJavadslPubSub, mockito)
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(orderApi, itemApi)

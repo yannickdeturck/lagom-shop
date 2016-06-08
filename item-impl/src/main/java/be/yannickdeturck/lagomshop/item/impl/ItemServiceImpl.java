@@ -27,15 +27,12 @@ public class ItemServiceImpl implements ItemService {
 
     private final PersistentEntityRegistry persistentEntities;
     private final CassandraSession db;
-//    private final PubSubRegistry topics;
 
 
     @Inject
     public ItemServiceImpl(PersistentEntityRegistry persistentEntities, CassandraReadSide readSide,
-//                           PubSubRegistry topics,
                            CassandraSession db) {
         this.persistentEntities = persistentEntities;
-//        this.topics = topics;
         this.db = db;
 
         persistentEntities.register(ItemEntity.class);
@@ -74,10 +71,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ServiceCall<CreateItemRequest, CreateItemResponse> createItem() {
         return request -> {
-            // also add publish stuff here
-            // Publish received entity into topic named "Topic"
-//            PubSubRef<Item> topic = topics.refFor(TopicId.of(Item.class, "topic"));
-//            topic.publish(request);
             LOGGER.info("Creating item: {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())

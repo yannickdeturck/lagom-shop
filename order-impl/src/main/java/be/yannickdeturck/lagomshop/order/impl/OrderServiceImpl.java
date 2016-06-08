@@ -1,6 +1,7 @@
 package be.yannickdeturck.lagomshop.order.impl;
 
 import akka.NotUsed;
+import akka.stream.javadsl.Source;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -11,6 +12,9 @@ import com.lightbend.lagom.javadsl.api.transport.TransportException;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
+import com.lightbend.lagom.javadsl.pubsub.PubSubRef;
+import com.lightbend.lagom.javadsl.pubsub.PubSubRegistry;
+import com.lightbend.lagom.javadsl.pubsub.TopicId;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
 import org.slf4j.Logger;
@@ -19,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
@@ -32,14 +37,13 @@ public class OrderServiceImpl implements OrderService {
     private final PersistentEntityRegistry persistentEntities;
     private final CassandraSession db;
     private final ItemService itemService;
+    private final PubSubRegistry pubSubRegistry;
 
     @Inject
     public OrderServiceImpl(PersistentEntityRegistry persistentEntities, CassandraReadSide readSide,
-                            ItemService itemService,
-//                           PubSubRegistry topics,
-                            CassandraSession db) {
+                            ItemService itemService, PubSubRegistry topics, CassandraSession db) {
         this.persistentEntities = persistentEntities;
-//        this.topics = topics;
+        this.pubSubRegistry = topics;
         this.db = db;
         this.itemService = itemService;
 
@@ -82,10 +86,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ServiceCall<CreateOrderRequest, CreateOrderResponse> createOrder() {
         return request -> {
-            // also add publish stuff here
-            // Publish received entity into topic named "Topic"
-//            PubSubRef<Order> topic = topics.refFor(TopicId.of(Order.class, "topic"));
-//            topic.publish(request);
+            PubSubRef<CreateOrderRequest> topic = pubSubRegistry.refFor(TopicId.of(CreateOrderRequest.class, "topic"));
+            topic.publish(request);
             CompletionStage<Item> response =
                     itemService.getItem(request.getItemId().toString()).invoke(NotUsed.getInstance());
             Item item = response.toCompletableFuture().join();
@@ -99,6 +101,14 @@ public class OrderServiceImpl implements OrderService {
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(OrderEntity.class, uuid.toString())
                     .ask(CreateOrder.of(request));
+        };
+    }
+
+    public ServiceCall<NotUsed, Source<CreateOrderRequest, ?>> getLiveOrders() {
+        return request -> {
+            final PubSubRef<CreateOrderRequest> topic =
+                    pubSubRegistry.refFor(TopicId.of(CreateOrderRequest.class, "topic"));
+            return CompletableFuture.completedFuture(topic.subscriber());
         };
     }
 }
