@@ -31,6 +31,7 @@ public class OrderServiceTest {
     @BeforeClass
     public static void setUp() {
         server = ServiceTest.startServer(ServiceTest.defaultSetup()
+                .withCassandra(true)
                 .withConfigureBuilder(b -> b.overrides(
                         Bindings.bind(ItemService.class).toInstance(itemService))));
     }

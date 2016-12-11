@@ -27,7 +27,8 @@ public class ItemServiceTest {
 
     @BeforeClass
     public static void setUp() {
-        server = ServiceTest.startServer(ServiceTest.defaultSetup());
+        server = ServiceTest.startServer(ServiceTest.defaultSetup()
+                .withCassandra(true));
     }
 
     @AfterClass

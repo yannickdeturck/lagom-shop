@@ -3,6 +3,6 @@
 //
 
 // The Lagom M2 plugin
-addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.0.0-M2")
+addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.2.1")
 
-addSbtPlugin("com.lightbend.conductr" % "sbt-conductr" % "2.0.1")
+addSbtPlugin("com.lightbend.conductr" % "sbt-conductr" % "2.1.16")

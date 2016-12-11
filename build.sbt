@@ -3,7 +3,7 @@ import ByteConversions._
 organization in ThisBuild := "be.yannickdeturck.lagomshop"
 
 // the Scala version that will be used for cross-compiled libraries
-scalaVersion in ThisBuild := "2.11.7"
+scalaVersion in ThisBuild := "2.11.8"
 
 val immutables = "org.immutables" % "value" % "2.1.14"
 val mockito = "org.mockito" % "mockito-core" % "1.10.19"
@@ -19,7 +19,7 @@ lazy val orderImpl = project("order-impl")
   .enablePlugins(LagomJava)
   .settings(
     version := "1.0-SNAPSHOT",
-    libraryDependencies ++= Seq(lagomJavadslPersistence, immutables,
+    libraryDependencies ++= Seq(lagomJavadslPersistenceCassandra, immutables,
       lagomJavadslImmutables, lagomJavadslTestKit, lagomJavadslPubSub, mockito)
   )
   .settings(lagomForkedTestSettings: _*)
@@ -36,7 +36,7 @@ lazy val itemImpl = project("item-impl")
   .enablePlugins(LagomJava)
   .settings(
     version := "1.0-SNAPSHOT",
-    libraryDependencies ++= Seq(lagomJavadslPersistence, immutables,
+    libraryDependencies ++= Seq(lagomJavadslPersistenceCassandra, immutables,
       lagomJavadslImmutables, lagomJavadslTestKit
     )
   )
@@ -56,7 +56,7 @@ lazy val frontEnd = project("front-end")
       "org.webjars" % "bootstrap" % "3.3.6",
       "com.typesafe.conductr" %% "lagom10-conductr-bundle-lib" % "1.4.1",
       filters,
-      "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3-SNAPSHOT"
+      "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3"
     ),
     // needed to resolve lagom10-conductr-bundle-lib
     resolvers ++= Seq(

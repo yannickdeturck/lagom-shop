@@ -8,7 +8,7 @@ import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.NotFound;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
-import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
+import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import org.pcollections.PSequence;
 import org.pcollections.TreePVector;
@@ -28,9 +28,8 @@ public class ItemServiceImpl implements ItemService {
     private final PersistentEntityRegistry persistentEntities;
     private final CassandraSession db;
 
-
     @Inject
-    public ItemServiceImpl(PersistentEntityRegistry persistentEntities, CassandraReadSide readSide,
+    public ItemServiceImpl(PersistentEntityRegistry persistentEntities, ReadSide readSide,
                            CassandraSession db) {
         this.persistentEntities = persistentEntities;
         this.db = db;

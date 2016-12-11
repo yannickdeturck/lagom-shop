@@ -10,7 +10,7 @@ import com.lightbend.lagom.javadsl.api.transport.NotFound;
 import com.lightbend.lagom.javadsl.api.transport.TransportErrorCode;
 import com.lightbend.lagom.javadsl.api.transport.TransportException;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
-import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraReadSide;
+import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
 import com.lightbend.lagom.javadsl.pubsub.PubSubRef;
 import com.lightbend.lagom.javadsl.pubsub.PubSubRegistry;
@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
     private final PubSubRegistry pubSubRegistry;
 
     @Inject
-    public OrderServiceImpl(PersistentEntityRegistry persistentEntities, CassandraReadSide readSide,
+    public OrderServiceImpl(PersistentEntityRegistry persistentEntities, ReadSide readSide,
                             ItemService itemService, PubSubRegistry topics, CassandraSession db) {
         this.persistentEntities = persistentEntities;
         this.pubSubRegistry = topics;

@@ -36,7 +36,7 @@ public interface OrderService extends Service {
 
     @Override
     default Descriptor descriptor() {
-        return Service.named("orderservice").with(
+        return Service.named("orderservice").withCalls(
                 Service.pathCall("/api/orders/live", this::getLiveOrders),
                 Service.restCall(Method.GET, "/api/orders/:id", this::getOrder),
                 Service.restCall(Method.GET, "/api/orders", this::getAllOrders),
