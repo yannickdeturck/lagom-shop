@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-export APPLICATION_SECRET=<REPLACE_WITH_GENERATED_APPLICATION_SECRET>
+export APPLICATION_SECRET=replacewithactualsecret
