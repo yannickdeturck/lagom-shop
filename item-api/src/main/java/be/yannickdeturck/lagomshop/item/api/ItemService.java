@@ -4,6 +4,7 @@ import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.broker.Topic;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.PSequence;
 
@@ -30,6 +31,11 @@ public interface ItemService extends Service {
     ServiceCall<CreateItemRequest, CreateItemResponse> createItem();
 
     /**
+     * Topic for created items.
+     */
+    Topic<ItemEvent> createdItemsTopic();
+
+    /**
      * Other useful URLs:
      *
      * http://localhost:8000/services                                  - Lists the available services
@@ -43,6 +49,8 @@ public interface ItemService extends Service {
                 Service.restCall(Method.GET,  "/api/items/:id", this::getItem),
                 Service.restCall(Method.GET,  "/api/items", this::getAllItems),
                 Service.restCall(Method.POST, "/api/items", this::createItem)
+        ).publishing(
+                Service.topic("createdItems", this::createdItemsTopic)
         ).withAutoAcl(true);
     }
 }

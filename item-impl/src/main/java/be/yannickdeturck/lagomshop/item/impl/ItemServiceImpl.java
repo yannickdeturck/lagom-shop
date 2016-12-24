@@ -1,12 +1,16 @@
 package be.yannickdeturck.lagomshop.item.impl;
 
 import akka.NotUsed;
+import akka.japi.Pair;
 import be.yannickdeturck.lagomshop.item.api.CreateItemRequest;
 import be.yannickdeturck.lagomshop.item.api.CreateItemResponse;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.broker.Topic;
 import com.lightbend.lagom.javadsl.api.transport.NotFound;
+import com.lightbend.lagom.javadsl.broker.TopicProducer;
+import com.lightbend.lagom.javadsl.persistence.Offset;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
@@ -75,5 +79,22 @@ public class ItemServiceImpl implements ItemService {
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())
                     .ask(CreateItem.of(request));
         };
+    }
+
+    @Override
+    public Topic<be.yannickdeturck.lagomshop.item.api.ItemEvent> createdItemsTopic() {
+        return TopicProducer.singleStreamWithOffset(offset -> {
+            return persistentEntities
+                    .eventStream(ItemEventTag.INSTANCE, offset)
+                    .filter(eventOffSet -> eventOffSet.first() instanceof ItemCreated)
+                    .map(this::convertItem);
+        });
+    }
+
+    private Pair<be.yannickdeturck.lagomshop.item.api.ItemEvent, Offset> convertItem(Pair<ItemEvent, Offset> pair) {
+        Item item = ((ItemCreated)pair.first()).getItem();
+        LOGGER.info("Converting ItemEvent" + item);
+        return new Pair<>(new be.yannickdeturck.lagomshop.item.api.ItemEvent.ItemCreated(item.getId(), item.getName(),
+                item.getPrice()), pair.second());
     }
 }

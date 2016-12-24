@@ -1,8 +1,14 @@
 package be.yannickdeturck.lagomshop.order.impl;
 
+import akka.Done;
 import akka.NotUsed;
+import akka.stream.javadsl.Flow;
+import akka.stream.javadsl.Source;
 import be.yannickdeturck.lagomshop.item.api.Item;
+import be.yannickdeturck.lagomshop.item.api.ItemEvent;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
+import com.lightbend.lagom.javadsl.api.broker.Subscriber;
+import com.lightbend.lagom.javadsl.api.broker.Topic;
 import com.lightbend.lagom.javadsl.testkit.ServiceTest;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -16,6 +22,7 @@ import scala.concurrent.duration.FiniteDuration;
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -30,10 +37,42 @@ public class OrderServiceTest {
 
     @BeforeClass
     public static void setUp() {
+        prepareTopic();
         server = ServiceTest.startServer(ServiceTest.defaultSetup()
                 .withCassandra(true)
                 .withConfigureBuilder(b -> b.overrides(
                         Bindings.bind(ItemService.class).toInstance(itemService))));
+    }
+
+    // TODO is there a more elegant way to mock this?
+    public static void prepareTopic(){
+        Mockito.when(itemService.createdItemsTopic())
+                .thenReturn(new Topic<ItemEvent>() {
+                    @Override
+                    public TopicId topicId() {
+                        return null;
+                    }
+
+                    @Override
+                    public Subscriber<ItemEvent> subscribe() {
+                        return new Subscriber<ItemEvent>() {
+                            @Override
+                            public Subscriber<ItemEvent> withGroupId(String groupId) throws IllegalArgumentException {
+                                return null;
+                            }
+
+                            @Override
+                            public Source<ItemEvent, ?> atMostOnceSource() {
+                                return null;
+                            }
+
+                            @Override
+                            public CompletionStage<Done> atLeastOnce(Flow<ItemEvent, Done, ?> flow) {
+                                return null;
+                            }
+                        };
+                    }
+                });
     }
 
     @AfterClass

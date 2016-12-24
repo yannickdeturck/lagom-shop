@@ -1,7 +1,9 @@
 package be.yannickdeturck.lagomshop.order.impl;
 
+import akka.Done;
 import akka.NotUsed;
 import akka.stream.javadsl.Source;
+import akka.stream.javadsl.Flow;
 import be.yannickdeturck.lagomshop.item.api.Item;
 import be.yannickdeturck.lagomshop.item.api.ItemService;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -49,6 +51,12 @@ public class OrderServiceImpl implements OrderService {
 
         persistentEntities.register(OrderEntity.class);
         readSide.register(OrderEventProcessor.class);
+        itemService.createdItemsTopic()
+                .subscribe()
+                .atLeastOnce(Flow.fromFunction((be.yannickdeturck.lagomshop.item.api.ItemEvent item) -> {
+                    LOGGER.info("Subscriber: doing something with the created item " + item);
+                    return Done.getInstance();
+                }));
     }
 
     @Override

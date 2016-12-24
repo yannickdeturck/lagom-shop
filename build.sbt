@@ -20,7 +20,7 @@ lazy val orderImpl = project("order-impl")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(lagomJavadslPersistenceCassandra, immutables,
-      lagomJavadslImmutables, lagomJavadslTestKit, lagomJavadslPubSub, mockito)
+      lagomJavadslImmutables, lagomJavadslTestKit, lagomJavadslPubSub, lagomJavadslKafkaBroker, mockito)
   )
   .settings(lagomForkedTestSettings: _*)
   .dependsOn(orderApi, itemApi)
@@ -37,7 +37,7 @@ lazy val itemImpl = project("item-impl")
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(lagomJavadslPersistenceCassandra, immutables,
-      lagomJavadslImmutables, lagomJavadslTestKit
+      lagomJavadslImmutables, lagomJavadslTestKit, lagomJavadslKafkaBroker
     )
   )
   .settings(lagomForkedTestSettings: _*) // tests must be forked for cassandra
