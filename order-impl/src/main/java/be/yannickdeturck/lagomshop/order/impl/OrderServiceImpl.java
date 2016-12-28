@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  */
 public class OrderServiceImpl implements OrderService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
     private final PersistentEntityRegistry persistentEntities;
     private final CassandraSession db;
@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
         itemService.createdItemsTopic()
                 .subscribe()
                 .atLeastOnce(Flow.fromFunction((be.yannickdeturck.lagomshop.item.api.ItemEvent item) -> {
-                    LOGGER.info("Subscriber: doing something with the created item " + item);
+                    logger.info("Subscriber: doing something with the created item " + item);
                     return Done.getInstance();
                 }));
     }
@@ -64,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
         return (req) -> {
             return persistentEntities.refFor(OrderEntity.class, id)
                     .ask(GetOrder.of()).thenApply(reply -> {
-                        LOGGER.info(String.format("Looking up order %s", id));
+                        logger.info(String.format("Looking up order %s", id));
                         if (reply.getOrder().isPresent())
                             return reply.getOrder().get();
                         else
@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public ServiceCall<NotUsed, PSequence<Order>> getAllOrders() {
         return (req) -> {
-            LOGGER.info("Looking up all orders");
+            logger.info("Looking up all orders");
             CompletionStage<PSequence<Order>> result =
                     db.selectAll("SELECT orderId, itemId, amount, customer FROM item_order")
                             .thenApply(rows -> {
@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
                         new ExceptionMessage("Bad Request", String.format("No item found for id %s",
                                 request.getItemId().toString())));
             }
-            LOGGER.info("Creating order {}", request);
+            logger.info("Creating order {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(OrderEntity.class, uuid.toString())
                     .ask(CreateOrder.of(request));

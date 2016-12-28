@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
  */
 public class ItemEventProcessor extends ReadSideProcessor<ItemEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemEventProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(ItemEventProcessor.class);
 
     private final CassandraSession session;
     private final CassandraReadSide readSide;
@@ -40,14 +40,14 @@ public class ItemEventProcessor extends ReadSideProcessor<ItemEvent> {
     }
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
-        LOGGER.info("Creating Cassandra tables...");
+        logger.info("Creating Cassandra tables...");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS item ("
                         + "itemId uuid, name text, price decimal, PRIMARY KEY (itemId))");
     }
 
     private CompletionStage<Done> prepareWriteItem(CassandraSession session) {
-        LOGGER.info("Inserting into read-side table item...");
+        logger.info("Inserting into read-side table item...");
         return session.prepare("INSERT INTO item (itemId, name, price) VALUES (?, ?, ?)")
                 .thenApply(ps -> {
                     setWriteItem(ps);
@@ -63,7 +63,7 @@ public class ItemEventProcessor extends ReadSideProcessor<ItemEvent> {
         bindWriteItem.setUUID("itemId", event.getItem().getId());
         bindWriteItem.setString("name", event.getItem().getName());
         bindWriteItem.setDecimal("price", event.getItem().getPrice());
-        LOGGER.info("Persisted Item {}", event.getItem());
+        logger.info("Persisted Item {}", event.getItem());
         return CassandraReadSide.completedStatements(Arrays.asList(bindWriteItem));
     }
 
@@ -72,7 +72,7 @@ public class ItemEventProcessor extends ReadSideProcessor<ItemEvent> {
         CassandraReadSide.ReadSideHandlerBuilder<ItemEvent> builder = readSide.builder("item_offset");
         builder.setGlobalPrepare(() -> prepareCreateTables(session));
         builder.setPrepare(tag -> prepareWriteItem(session));
-        LOGGER.info("Setting up read-side event handlers...");
+        logger.info("Setting up read-side event handlers...");
         builder.setEventHandler(ItemCreated.class, this::processItemCreated);
         return builder.build();
     }

@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class ItemServiceImpl implements ItemService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ItemServiceImpl.class);
 
     private final PersistentEntityRegistry persistentEntities;
     private final CassandraSession db;
@@ -47,7 +47,7 @@ public class ItemServiceImpl implements ItemService {
         return (req) -> {
             return persistentEntities.refFor(ItemEntity.class, id)
                     .ask(GetItem.of()).thenApply(reply -> {
-                        LOGGER.info(String.format("Looking up item %s", id));
+                        logger.info(String.format("Looking up item %s", id));
                         if (reply.getItem().isPresent())
                             return reply.getItem().get();
                         else
@@ -59,7 +59,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ServiceCall<NotUsed, PSequence<Item>> getAllItems() {
         return (req) -> {
-            LOGGER.info("Looking up all items");
+            logger.info("Looking up all items");
             CompletionStage<PSequence<Item>> result = db.selectAll("SELECT itemId, name, price FROM item")
                     .thenApply(rows -> {
                         List<Item> items = rows.stream().map(row -> Item.of(row.getUUID("itemId"),
@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ServiceCall<CreateItemRequest, CreateItemResponse> createItem() {
         return request -> {
-            LOGGER.info("Creating item: {}", request);
+            logger.info("Creating item: {}", request);
             UUID uuid = UUID.randomUUID();
             return persistentEntities.refFor(ItemEntity.class, uuid.toString())
                     .ask(CreateItem.of(request));
@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
 
     private Pair<be.yannickdeturck.lagomshop.item.api.ItemEvent, Offset> convertItem(Pair<ItemEvent, Offset> pair) {
         Item item = ((ItemCreated)pair.first()).getItem();
-        LOGGER.info("Converting ItemEvent" + item);
+        logger.info("Converting ItemEvent" + item);
         return new Pair<>(new be.yannickdeturck.lagomshop.item.api.ItemEvent.ItemCreated(item.getId(), item.getName(),
                 item.getPrice()), pair.second());
     }

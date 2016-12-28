@@ -22,7 +22,7 @@ import java.util.concurrent.CompletionStage;
  */
 public class OrderEventProcessor extends ReadSideProcessor<OrderEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrderEventProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderEventProcessor.class);
 
     private final CassandraSession session;
     private final CassandraReadSide readSide;
@@ -40,14 +40,14 @@ public class OrderEventProcessor extends ReadSideProcessor<OrderEvent> {
     }
 
     private CompletionStage<Done> prepareCreateTables(CassandraSession session) {
-        LOGGER.info("Creating Cassandra tables...");
+        logger.info("Creating Cassandra tables...");
         return session.executeCreateTable(
                 "CREATE TABLE IF NOT EXISTS item_order ("
                         + "orderId uuid, itemId uuid, amount int, customer text, PRIMARY KEY (orderId))");
     }
 
     private CompletionStage<Done> prepareWriteOrder(CassandraSession session) {
-        LOGGER.info("Inserting into read-side table item_order...");
+        logger.info("Inserting into read-side table item_order...");
         return session.prepare("INSERT INTO item_order (orderId, itemId, amount, customer) VALUES (?, ?, ?, ?)")
                 .thenApply(ps -> {
                     setWriteOrder(ps);
@@ -64,7 +64,7 @@ public class OrderEventProcessor extends ReadSideProcessor<OrderEvent> {
         bindWriteOrder.setUUID("itemId", event.getOrder().getItemId());
         bindWriteOrder.setInt("amount", event.getOrder().getAmount());
         bindWriteOrder.setString("customer", event.getOrder().getCustomer());
-        LOGGER.info("Persisted Order {}", event.getOrder());
+        logger.info("Persisted Order {}", event.getOrder());
         return CassandraReadSide.completedStatements(Collections.singletonList(bindWriteOrder));
     }
 
@@ -73,7 +73,7 @@ public class OrderEventProcessor extends ReadSideProcessor<OrderEvent> {
         CassandraReadSide.ReadSideHandlerBuilder<OrderEvent> builder = readSide.builder("item_order_offset");
         builder.setGlobalPrepare(() -> prepareCreateTables(session));
         builder.setPrepare(tag -> prepareWriteOrder(session));
-        LOGGER.info("Setting up read-side event handlers...");
+        logger.info("Setting up read-side event handlers...");
         builder.setEventHandler(OrderCreated.class, this::processOrderCreated);
         return builder.build();
     }

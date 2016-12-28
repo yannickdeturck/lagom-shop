@@ -13,11 +13,11 @@ import java.util.UUID;
  */
 public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, OrderState> {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(OrderEntity.class);
+    public static final Logger logger = LoggerFactory.getLogger(OrderEntity.class);
 
     @Override
     public Behavior initialBehavior(Optional<OrderState> snapshotState) {
-        LOGGER.info("Setting up initialBehaviour with snapshotState = {}", snapshotState);
+        logger.info("Setting up initialBehaviour with snapshotState = {}", snapshotState);
         BehaviorBuilder b = newBehaviorBuilder(snapshotState.orElse(
                 OrderState.of(Optional.empty(), LocalDateTime.now()))
         );
@@ -32,7 +32,7 @@ public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, Orde
                 Order order = Order.of(UUID.fromString(entityId()), orderRequest.getItemId(), orderRequest.getAmount(),
                         orderRequest.getCustomer());
                 final OrderCreated orderCreated = OrderCreated.builder().order(order).build();
-                LOGGER.info("Processed CreateOrder command into OrderCreated event {}", orderCreated);
+                logger.info("Processed CreateOrder command into OrderCreated event {}", orderCreated);
                 return ctx.thenPersist(orderCreated, evt ->
                         ctx.reply(CreateOrderResponse.of(orderCreated.getOrder().getId())));
             }
@@ -40,7 +40,7 @@ public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, Orde
 
         // Register event handler
         b.setEventHandler(OrderCreated.class, evt -> {
-                    LOGGER.info("Processed OrderCreated event, updated order state");
+                    logger.info("Processed OrderCreated event, updated order state");
                     return state().withOrder(evt.getOrder())
                             .withTimestamp(LocalDateTime.now());
                 }
@@ -49,7 +49,7 @@ public class OrderEntity extends PersistentEntity<OrderCommand, OrderEvent, Orde
         // Register read-only handler eg a handler that doesn't result in events being created
         b.setReadOnlyCommandHandler(GetOrder.class,
                 (cmd, ctx) -> {
-                    LOGGER.info("Processed GetOrder command, returned order");
+                    logger.info("Processed GetOrder command, returned order");
                     ctx.reply(GetOrderReply.of(state().getOrder()));
                 }
         );
