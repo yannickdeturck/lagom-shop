@@ -3,10 +3,11 @@ import ByteConversions._
 organization in ThisBuild := "be.yannickdeturck.lagomshop"
 
 // the Scala version that will be used for cross-compiled libraries
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.12"
 
 val immutables = "org.immutables" % "value" % "2.1.14"
 val mockito = "org.mockito" % "mockito-core" % "1.10.19"
+val macwire = "com.softwaremill.macwire" %% "macros" % "2.2.5" % "provided"
 
 lazy val orderApi = project("order-api")
   .settings(
@@ -44,17 +45,17 @@ lazy val itemImpl = project("item-impl")
   .dependsOn(itemApi)
 
 lazy val frontEnd = project("front-end")
-  .enablePlugins(PlayScala, LagomPlay)
+  .enablePlugins(PlayScala && LagomPlay)
   .settings(
     version := "1.0-SNAPSHOT",
     routesGenerator := InjectedRoutesGenerator,
     libraryDependencies ++= Seq(
-      cache,
-      ws,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
       "org.webjars" % "jquery" % "2.2.3",
       "org.webjars" % "bootstrap" % "3.3.6",
-      "com.typesafe.conductr" %% "lagom10-conductr-bundle-lib" % "1.4.1",
+      "com.typesafe.conductr" %% "lagom10-conductr-bundle-lib" % "1.4.7",
+      lagomScaladslServer,
+      macwire,
       filters,
       "com.adrianhurt" %% "play-bootstrap" % "1.1-P25-B3"
     ),

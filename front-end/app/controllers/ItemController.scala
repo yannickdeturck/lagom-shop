@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @author Yannick De Turck
   */
 @Singleton
-class ItemController @Inject()(val messagesApi: MessagesApi)(implicit context: ExecutionContext, ws: WSClient)
+class ItemController @Inject()(val messagesApi: MessagesApi, val ws: WSClient)(implicit context: ExecutionContext)
   extends Controller with I18nSupport {
 
   val itemForm: Form[Item] = Form(

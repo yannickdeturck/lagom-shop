@@ -3,7 +3,7 @@ This Lagom project contains two services
 * *Item service* that serves as an API for creating and looking up items
 * *Order service* that served as an API for creating and looking up orders for certain items
 
-The project also contains a front-end written in Play with multiple screen for working with items and orders.
+The project also contains a frontend written in Play with multiple screens for working with items and orders.
 
 ## Setup
 Install sbt

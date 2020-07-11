@@ -18,7 +18,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   * @author Yannick De Turck
   */
 @Singleton
-class OrderController @Inject()(val messagesApi: MessagesApi)(implicit context: ExecutionContext, ws: WSClient)
+class OrderController @Inject()(val messagesApi: MessagesApi, val ws: WSClient)(implicit context: ExecutionContext)
   extends Controller with I18nSupport {
 
   val orderForm: Form[Order] = Form(
